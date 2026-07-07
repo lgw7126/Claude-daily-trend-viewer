@@ -1,0 +1,1 @@
+# Claude-daily-trend-viewer
