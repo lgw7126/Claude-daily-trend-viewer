@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>데일리 트렌드 뷰어</title>
+  <meta name="description" content="유튜브·틱톡·인스타·스레드·트위터 트렌드를 매일 모아 보여주는 데일리 트렌드 뷰어" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <h1 class="logo">📊 데일리 트렌드 뷰어</h1>
+      <div class="topbar-right">
+        <input type="date" id="datePicker" aria-label="날짜 선택" />
+        <span id="modeBadge" class="mode-badge" hidden>샘플 데이터</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="search-wrap">
+      <input
+        type="search"
+        id="searchInput"
+        placeholder="키워드로 검색 — 예: 입시, 공부법, 수능, 호텔, 페이버…"
+        autocomplete="off"
+      />
+    </div>
+
+    <div class="toolbar">
+      <div class="chips" id="platformChips" role="tablist" aria-label="플랫폼 필터"></div>
+      <select id="sortSelect" aria-label="정렬">
+        <option value="views">조회수순</option>
+        <option value="likes">좋아요순</option>
+        <option value="recent">최신순</option>
+      </select>
+    </div>
+
+    <p class="status" id="statusLine"></p>
+    <div class="grid" id="cardGrid"></div>
+    <p class="empty" id="emptyMsg" hidden>표시할 트렌드가 없습니다. 다른 날짜나 키워드를 선택해 보세요.</p>
+  </main>
+
+  <footer class="footer">
+    매일 아침 자동 수집 · Apify → Supabase → Netlify
+  </footer>
+
+  <script src="config.js"></script>
+  <script src="sample-data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

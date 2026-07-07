@@ -1,0 +1,15 @@
+{
+  "name": "claude-daily-trend-viewer",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "유튜브·틱톡·인스타·스레드·트위터 트렌드를 매일 수집해 보여주는 데일리 트렌드 뷰어",
+  "scripts": {
+    "collect": "node scripts/collect-trends.mjs",
+    "build": "node scripts/build-config.mjs",
+    "dev": "node scripts/build-config.mjs && npx -y serve public"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
