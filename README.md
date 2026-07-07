@@ -1,5 +1,9 @@
 # 📊 데일리 트렌드 뷰어
 
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/lgw7126/Claude-daily-trend-viewer)
+
+버튼을 클릭하면 본인 Netlify 계정으로 이 저장소가 바로 배포되어 앱이 실행됩니다 (Supabase 연동 전에는 샘플 데이터로 동작).
+
 유튜브 · 틱톡 · 인스타그램 · 스레드 · 트위터(X) 트렌드를 **매일 자동 수집**해서 한 페이지에서 보여주는 웹앱입니다.
 
 ```
