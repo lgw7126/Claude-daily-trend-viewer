@@ -2,12 +2,10 @@
 /**
  * 데일리 트렌드 수집기
  * Apify 액터로 5개 플랫폼(유튜브·틱톡·인스타그램·스레드·트위터)의 트렌드를 수집해
- * Supabase `trends` 테이블에 upsert 합니다.
+ * public/data/ 아래에 날짜별 JSON 파일로 저장합니다 (DB 불필요, GitHub 저장소에 커밋).
  *
  * 필수 환경변수:
  *   APIFY_TOKEN                  Apify API 토큰
- *   SUPABASE_URL                 https://xxxx.supabase.co
- *   SUPABASE_SERVICE_ROLE_KEY    Supabase service_role 키 (쓰기용)
  *
  * 선택 환경변수:
  *   TREND_KEYWORDS               쉼표 구분 검색 키워드 (기본값 아래 참고)
@@ -17,17 +15,19 @@
  *   {YOUTUBE|TIKTOK|INSTAGRAM|THREADS|TWITTER}_INPUT   액터 입력 JSON 전체 교체
  */
 
+import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+
 const APIFY_TOKEN = process.env.APIFY_TOKEN;
-const SUPABASE_URL = (process.env.SUPABASE_URL || "").replace(/\/$/, "");
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 const KEYWORDS = (process.env.TREND_KEYWORDS || "케이팝,챌린지,브이로그,예능,신곡")
   .split(",").map((s) => s.trim()).filter(Boolean);
 const MAX_ITEMS = Number(process.env.MAX_ITEMS_PER_PLATFORM || 30);
 const RUN_TIMEOUT_MS = 12 * 60 * 1000;
+const DATA_DIR = fileURLToPath(new URL("../public/data", import.meta.url));
 
-if (!APIFY_TOKEN || !SUPABASE_URL || !SUPABASE_KEY) {
-  console.error("APIFY_TOKEN, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY 환경변수가 필요합니다.");
+if (!APIFY_TOKEN) {
+  console.error("APIFY_TOKEN 환경변수가 필요합니다.");
   process.exit(1);
 }
 
@@ -175,27 +175,44 @@ async function runActor(platform) {
   return Array.isArray(items) ? items : items.data ?? [];
 }
 
-async function upsert(rows) {
-  const res = await fetch(
-    `${SUPABASE_URL}/rest/v1/trends?on_conflict=platform,item_id,collected_date`,
-    {
-      method: "POST",
-      headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`,
-        "Content-Type": "application/json",
-        Prefer: "resolution=merge-duplicates",
-      },
-      body: JSON.stringify(rows),
-    },
-  );
-  if (!res.ok) throw new Error(`Supabase upsert 실패: ${res.status} ${await res.text()}`);
+function loadDayFile(date) {
+  const path = `${DATA_DIR}/trends-${date}.json`;
+  if (!existsSync(path)) return [];
+  try {
+    return JSON.parse(readFileSync(path, "utf8"));
+  } catch {
+    return [];
+  }
+}
+
+function saveDayFile(date, rows) {
+  mkdirSync(DATA_DIR, { recursive: true });
+  writeFileSync(`${DATA_DIR}/trends-${date}.json`, JSON.stringify(rows, null, 2));
+}
+
+function updateDatesIndex(date) {
+  const path = `${DATA_DIR}/dates.json`;
+  let dates = [];
+  if (existsSync(path)) {
+    try {
+      dates = JSON.parse(readFileSync(path, "utf8"));
+    } catch {
+      dates = [];
+    }
+  }
+  if (!dates.includes(date)) dates.push(date);
+  dates.sort().reverse();
+  writeFileSync(path, JSON.stringify(dates, null, 2));
 }
 
 const only = (process.env.PLATFORMS || "").split(",").map((s) => s.trim()).filter(Boolean);
 const targets = only.length ? PLATFORMS.filter((p) => only.includes(p.name)) : PLATFORMS;
 const today = new Date().toISOString().slice(0, 10);
-let total = 0;
+
+const existing = loadDayFile(today);
+const byKey = new Map(existing.map((r) => [`${r.platform}:${r.item_id}`, r]));
+let nextId = existing.reduce((max, r) => Math.max(max, r.id || 0), 0) + 1;
+let collected = 0;
 
 for (const platform of targets) {
   try {
@@ -205,13 +222,22 @@ for (const platform of targets) {
       .filter((r) => r.item_id && r.title)
       .slice(0, MAX_ITEMS)
       .map((r) => ({ ...r, item_id: String(r.item_id), title: String(r.title).slice(0, 500) }));
-    if (rows.length) await upsert(rows);
-    console.log(`[${platform.name}] ${rows.length}건 저장 완료`);
-    total += rows.length;
+
+    for (const row of rows) {
+      const key = `${row.platform}:${row.item_id}`;
+      const existingRow = byKey.get(key);
+      byKey.set(key, { id: existingRow?.id ?? nextId++, collected_at: new Date().toISOString(), ...row });
+    }
+    console.log(`[${platform.name}] ${rows.length}건 수집 완료`);
+    collected += rows.length;
   } catch (err) {
     console.error(`[${platform.name}] 수집 실패 — 건너뜀:`, err.message);
   }
 }
 
-console.log(`총 ${total}건 저장 (${today})`);
-if (total === 0) process.exit(1);
+const merged = [...byKey.values()];
+saveDayFile(today, merged);
+updateDatesIndex(today);
+
+console.log(`총 ${merged.length}건 저장 (${today}, 이번 실행에서 ${collected}건 반영)`);
+if (collected === 0) process.exit(1);

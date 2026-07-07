@@ -1,9 +1,7 @@
 /* 데일리 트렌드 뷰어 프론트엔드
- * Supabase 연결 정보(config.js)가 있으면 REST 로 조회, 없으면 샘플 데이터로 동작합니다. */
+ * public/data/dates.json + public/data/trends-YYYY-MM-DD.json 정적 파일을 읽어옵니다
+ * (GitHub Actions가 매일 수집해서 커밋). 아직 수집된 데이터가 없으면 샘플 데이터로 동작합니다. */
 (() => {
-  const cfg = window.TREND_CONFIG || {};
-  const useSupabase = Boolean(cfg.supabaseUrl && cfg.supabaseAnonKey);
-
   const PLATFORMS = [
     { key: "all", label: "전체" },
     { key: "youtube", label: "유튜브", color: "var(--yt)" },
@@ -35,35 +33,26 @@
   const esc = (s) =>
     String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
-  async function sb(path) {
-    const res = await fetch(`${cfg.supabaseUrl}/rest/v1/${path}`, {
-      headers: { apikey: cfg.supabaseAnonKey, Authorization: `Bearer ${cfg.supabaseAnonKey}` },
-    });
-    if (!res.ok) throw new Error(`Supabase ${res.status}`);
+  async function fetchJson(path) {
+    const res = await fetch(path, { cache: "no-store" });
+    if (!res.ok) throw new Error(`${path} → ${res.status}`);
     return res.json();
   }
 
-  async function latestDate() {
-    const rows = await sb("trends?select=collected_date&order=collected_date.desc&limit=1");
-    return rows[0]?.collected_date || new Date().toISOString().slice(0, 10);
+  async function availableDates() {
+    return fetchJson("data/dates.json");
   }
 
   async function loadDate(date) {
     $status.textContent = "불러오는 중…";
     try {
-      if (useSupabase) {
-        items = await sb(
-          `trends?select=*&collected_date=eq.${date}&order=view_count.desc.nullslast&limit=500`,
-        );
-      } else {
-        items = window.SAMPLE_TRENDS || [];
-        $mode.hidden = false;
-      }
+      items = await fetchJson(`data/trends-${date}.json`);
+      $mode.hidden = true;
     } catch (err) {
       console.error(err);
       items = window.SAMPLE_TRENDS || [];
       $mode.hidden = false;
-      $mode.textContent = "연결 실패 — 샘플 데이터";
+      $mode.textContent = "샘플 데이터 (아직 수집된 데이터 없음)";
     }
     render();
   }
@@ -143,12 +132,11 @@
   (async () => {
     renderChips();
     let date = new Date().toISOString().slice(0, 10);
-    if (useSupabase) {
-      try {
-        date = await latestDate();
-      } catch (e) {
-        console.error(e);
-      }
+    try {
+      const dates = await availableDates();
+      if (dates?.length) date = dates[0];
+    } catch (e) {
+      console.error(e);
     }
     $date.value = date;
     await loadDate(date);
