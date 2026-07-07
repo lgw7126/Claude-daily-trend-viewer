@@ -5,6 +5,9 @@ on:
     - cron: "0 22 * * *" # 매일 07:00 KST
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   collect:
     runs-on: ubuntu-latest
@@ -14,11 +17,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: 트렌드 수집 및 Supabase 저장
+      - name: 트렌드 수집 (public/data/ 에 JSON 저장)
         run: node scripts/collect-trends.mjs
         env:
           APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           TREND_KEYWORDS: ${{ vars.TREND_KEYWORDS }}
           MAX_ITEMS_PER_PLATFORM: ${{ vars.MAX_ITEMS_PER_PLATFORM }}
+      - name: 수집 결과 커밋 & 푸시
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/data
+          git diff --cached --quiet && echo "변경 없음" || git commit -m "chore: $(date -u +%F) 트렌드 데이터 수집"
+          git push
