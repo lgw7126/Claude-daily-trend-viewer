@@ -20,7 +20,10 @@ import { fileURLToPath } from "node:url";
 
 const APIFY_TOKEN = process.env.APIFY_TOKEN;
 
-const KEYWORDS = (process.env.TREND_KEYWORDS || "케이팝,챌린지,브이로그,예능,신곡")
+const KEYWORDS = (
+  process.env.TREND_KEYWORDS ||
+  "케이팝,챌린지,브이로그,예능,신곡,호텔,여행,맛집,입시,재테크"
+)
   .split(",").map((s) => s.trim()).filter(Boolean);
 const MAX_ITEMS = Number(process.env.MAX_ITEMS_PER_PLATFORM || 30);
 const RUN_TIMEOUT_MS = 12 * 60 * 1000;
