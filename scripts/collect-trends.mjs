@@ -110,8 +110,15 @@ const PLATFORMS = [
   },
   {
     name: "threads",
-    actor: process.env.THREADS_ACTOR || "curious_coder~threads-scraper",
-    input: () => ({ keyword: KEYWORDS[0], keywords: KEYWORDS, maxItems: MAX_ITEMS }),
+    actor: process.env.THREADS_ACTOR || "automation-lab~threads-scraper",
+    input: () => ({
+      searchTerm: KEYWORDS[0],
+      hashtag: KEYWORDS[0],
+      keyword: KEYWORDS[0],
+      keywords: KEYWORDS,
+      maxItems: MAX_ITEMS,
+      maxResults: MAX_ITEMS,
+    }),
     normalize: (it) => ({
       item_id: it.id || it.pk || it.code || it.url,
       title: it.text || it.caption?.text,
