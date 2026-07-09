@@ -54,6 +54,8 @@ const PLATFORMS = [
       maxResults: Math.ceil(MAX_ITEMS / KEYWORDS.length),
       maxResultsShorts: 0,
       maxResultStreams: 0,
+      dateFilter: "week",
+      sortingOrder: "date",
     }),
     normalize: (it) => ({
       item_id: it.id || it.videoId || it.url,
@@ -133,7 +135,7 @@ const PLATFORMS = [
   {
     name: "twitter",
     actor: process.env.TWITTER_ACTOR || "apidojo~tweet-scraper",
-    input: () => ({ searchTerms: KEYWORDS, maxItems: MAX_ITEMS, sort: "Top" }),
+    input: () => ({ searchTerms: KEYWORDS, maxItems: MAX_ITEMS, sort: "Latest", tweetLanguage: "" }),
     normalize: (it) => ({
       item_id: it.id,
       title: it.text || it.fullText,
