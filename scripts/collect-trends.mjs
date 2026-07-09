@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * 데일리 트렌드 수집기
- * Apify 액터로 5개 플랫폼(유튜브·틱톡·인스타그램·스레드·트위터)의 트렌드를 수집해
+ * Apify 액터로 4개 플랫폼(유튜브·틱톡·인스타그램·스레드)의 트렌드를 수집해
  * public/data/ 아래에 날짜별 JSON 파일로 저장합니다 (DB 불필요, GitHub 저장소에 커밋).
  *
  * 필수 환경변수:
@@ -11,8 +11,8 @@
  *   TREND_KEYWORDS               쉼표 구분 검색 키워드 (기본값 아래 참고)
  *   MAX_ITEMS_PER_PLATFORM       플랫폼당 최대 수집 개수 (기본 30)
  *   PLATFORMS                    수집할 플랫폼만 지정 (예: youtube,tiktok)
- *   {YOUTUBE|TIKTOK|INSTAGRAM|THREADS|TWITTER}_ACTOR   액터 ID 교체
- *   {YOUTUBE|TIKTOK|INSTAGRAM|THREADS|TWITTER}_INPUT   액터 입력 JSON 전체 교체
+ *   {YOUTUBE|TIKTOK|INSTAGRAM|THREADS}_ACTOR   액터 ID 교체
+ *   {YOUTUBE|TIKTOK|INSTAGRAM|THREADS}_INPUT   액터 입력 JSON 전체 교체
  */
 
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
@@ -129,26 +129,6 @@ const PLATFORMS = [
       like_count: num(it.like_count ?? it.likes),
       comment_count: num(it.reply_count ?? it.text_post_app_info?.direct_reply_count),
       posted_at: iso(it.taken_at ? it.taken_at * 1000 : it.publishedAt),
-      keyword: null,
-    }),
-  },
-  {
-    name: "twitter",
-    actor: process.env.TWITTER_ACTOR || "apidojo~tweet-scraper",
-    input: () => ({ searchTerms: KEYWORDS, maxItems: MAX_ITEMS, sort: "Latest", tweetLanguage: "ko" }),
-    normalize: (it) => ({
-      item_id: it.id,
-      title: it.text || it.fullText,
-      url: it.url || it.twitterUrl,
-      thumbnail_url:
-        it.extendedEntities?.media?.[0]?.media_url_https ||
-        it.media?.[0]?.media_url_https ||
-        it.author?.profilePicture,
-      author: it.author?.userName || it.author?.name,
-      view_count: num(it.viewCount),
-      like_count: num(it.likeCount),
-      comment_count: num(it.replyCount),
-      posted_at: iso(it.createdAt),
       keyword: null,
     }),
   },
