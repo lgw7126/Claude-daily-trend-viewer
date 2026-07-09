@@ -8,9 +8,8 @@
     { key: "tiktok", label: "틱톡", color: "var(--tt)" },
     { key: "instagram", label: "인스타 릴스", color: "var(--ig)" },
     { key: "threads", label: "스레드", color: "var(--th)" },
-    { key: "twitter", label: "트위터(X)", color: "var(--tw)" },
   ];
-  const BADGE = { youtube: "유튜브", tiktok: "틱톡", instagram: "인스타", threads: "스레드", twitter: "X" };
+  const BADGE = { youtube: "유튜브", tiktok: "틱톡", instagram: "인스타", threads: "스레드" };
 
   const $grid = document.getElementById("cardGrid");
   const $chips = document.getElementById("platformChips");

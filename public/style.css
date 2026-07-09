@@ -11,7 +11,6 @@
   --tt: #25f4ee;
   --ig: #e1519c;
   --th: #cfd4de;
-  --tw: #6aa5ff;
 }
 
 * { box-sizing: border-box; }
@@ -144,7 +143,6 @@ input[type="date"] { color-scheme: dark; }
 .badge.tiktok { background: var(--tt); }
 .badge.instagram { background: var(--ig); color: #fff; }
 .badge.threads { background: var(--th); }
-.badge.twitter { background: var(--tw); color: #0d0f13; }
 
 .card-body { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
 .card-title {

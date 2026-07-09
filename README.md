@@ -2,10 +2,10 @@
 
 ### 👉 [**여기 클릭하면 바로 실행됩니다**](https://capable-otter-9cbe27.netlify.app)
 
-유튜브 · 틱톡 · 인스타그램 · 스레드 · 트위터(X) 트렌드를 **매일 자동 수집**해서 한 페이지에서 보여주는 웹앱입니다.
+유튜브 · 틱톡 · 인스타그램 · 스레드 트렌드를 **매일 자동 수집**해서 한 페이지에서 보여주는 웹앱입니다.
 
 ```
-Apify (5개 플랫폼 수집) → public/data/*.json (GitHub 저장소에 커밋) → 정적 웹앱 (Netlify 배포)
+Apify (4개 플랫폼 수집) → public/data/*.json (GitHub 저장소에 커밋) → 정적 웹앱 (Netlify 배포)
                 ↑ GitHub Actions 가 매일 07:00 KST 에 실행
 ```
 
@@ -28,9 +28,9 @@ GitHub Actions가 매일 수집한 데이터를 저장소에 직접 커밋하므
 1. 저장소 **Settings → Actions → General** 이동
 2. **Workflow permissions** 에서 **"Read and write permissions"** 선택 후 저장
 
-### 2. 트렌드 데이터 수집 (Apify 5개 플랫폼)
+### 2. 트렌드 데이터 수집 (Apify 4개 플랫폼)
 1. [apify.com](https://apify.com) 가입 후 API 토큰 발급 (Settings → Integrations)
-2. 기본 액터: `streamers/youtube-scraper`, `clockworks/tiktok-scraper`, `apify/instagram-hashtag-scraper`, `curious_coder/threads-scraper`, `apidojo/tweet-scraper`
+2. 기본 액터: `streamers/youtube-scraper`, `clockworks/tiktok-scraper`, `apify/instagram-hashtag-scraper`, `automation-lab/threads-scraper`
    — 일부는 유료 렌탈이 필요할 수 있습니다. Apify 스토어에서 원하는 액터로 바꾸려면 `YOUTUBE_ACTOR` 같은 환경변수로 교체하고, 입력 스키마가 다르면 `YOUTUBE_INPUT` 에 JSON 을 직접 지정하세요.
 3. 수동 실행 테스트:
    ```bash
@@ -58,7 +58,7 @@ npm run dev   # http://localhost:3000
 ```
 
 ## 뷰어 기능
-- 플랫폼 필터 칩 (전체 / 유튜브 / 틱톡 / 인스타 릴스 / 스레드 / 트위터)
+- 플랫폼 필터 칩 (전체 / 유튜브 / 틱톡 / 인스타 릴스 / 스레드)
 - 키워드 검색 (제목·작성자·수집 키워드)
 - 정렬: 조회수순 · 좋아요순 · 최신순
 - 날짜 선택으로 과거 수집분 조회 (데이터는 저장소에 날짜별로 누적)
