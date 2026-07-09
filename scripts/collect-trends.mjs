@@ -133,7 +133,7 @@ const PLATFORMS = [
   {
     name: "twitter",
     actor: process.env.TWITTER_ACTOR || "apidojo~tweet-scraper",
-    input: () => ({ searchTerms: KEYWORDS, maxItems: MAX_ITEMS, sort: "Top" }),
+    input: () => ({ searchTerms: KEYWORDS, maxItems: MAX_ITEMS, sort: "Latest" }),
     normalize: (it) => ({
       item_id: it.id,
       title: it.text || it.fullText,
