@@ -54,6 +54,8 @@ const PLATFORMS = [
       maxResults: Math.ceil(MAX_ITEMS / KEYWORDS.length),
       maxResultsShorts: 0,
       maxResultStreams: 0,
+      dateFilter: "week",
+      sortingOrder: "date",
     }),
     normalize: (it) => ({
       item_id: it.id || it.videoId || it.url,
