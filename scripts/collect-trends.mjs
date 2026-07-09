@@ -112,12 +112,10 @@ const PLATFORMS = [
     name: "threads",
     actor: process.env.THREADS_ACTOR || "automation-lab~threads-scraper",
     input: () => ({
-      searchTerm: KEYWORDS[0],
-      hashtag: KEYWORDS[0],
-      keyword: KEYWORDS[0],
-      keywords: KEYWORDS,
-      maxItems: MAX_ITEMS,
-      maxResults: MAX_ITEMS,
+      mode: "search",
+      searchQueries: KEYWORDS,
+      maxPosts: Math.ceil(MAX_ITEMS / KEYWORDS.length),
+      includeProfile: false,
     }),
     normalize: (it) => ({
       item_id: it.id || it.pk || it.code || it.url,
