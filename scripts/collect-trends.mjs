@@ -135,7 +135,7 @@ const PLATFORMS = [
   {
     name: "twitter",
     actor: process.env.TWITTER_ACTOR || "apidojo~tweet-scraper",
-    input: () => ({ searchTerms: KEYWORDS, maxItems: MAX_ITEMS, sort: "Latest", tweetLanguage: "" }),
+    input: () => ({ searchTerms: KEYWORDS, maxItems: MAX_ITEMS, sort: "Latest", tweetLanguage: "ko" }),
     normalize: (it) => ({
       item_id: it.id,
       title: it.text || it.fullText,
